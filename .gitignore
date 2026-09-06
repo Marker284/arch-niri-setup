@@ -1,0 +1,10 @@
+# Всё, что Noctalia генерирует сама из палитры — в репозитории не нужно.
+# Everything Noctalia generates from the palette; no need to track it.
+config/niri/noctalia.kdl
+config/kitty/themes/
+config/noctalia/templates/*.md5
+
+# Мусор редакторов и системы / editor and OS noise
+*~
+*.swp
+.DS_Store

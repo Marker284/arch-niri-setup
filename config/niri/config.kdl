@@ -1,0 +1,391 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  niri — конфигурация (собрана вместе с Noctalia Shell)
+//  Документация: https://yalter.github.io/niri/
+//  Цвета (focus-ring / border) генерируются Noctalia из обоев -> noctalia.kdl
+// ═══════════════════════════════════════════════════════════════════════════
+
+include "noctalia.kdl"
+
+// ── Ввод ───────────────────────────────────────────────────────────────────
+input {
+    keyboard {
+        xkb {
+            layout "us,ru"
+            variant ",dos"
+            options "grp:caps_toggle,terminate:ctrl_alt_bksp"
+        }
+        repeat-delay 250
+        repeat-rate 40
+        numlock
+    }
+
+    touchpad {
+        tap
+        dwt
+        natural-scroll
+        scroll-method "two-finger"
+        accel-profile "adaptive"
+        click-method "clickfinger"
+    }
+
+    mouse {
+        accel-profile "flat"
+    }
+
+    // Фокус следует за мышью только для полностью видимых окон
+    focus-follows-mouse max-scroll-amount="0%"
+
+    // Курсор прыгает на новое сфокусированное окно
+    warp-mouse-to-focus
+}
+
+// ── Мониторы ───────────────────────────────────────────────────────────────
+// Посмотреть имена: niri msg outputs
+output "eDP-1" {
+    mode "1920x1080"
+    scale 1
+    transform "normal"
+    variable-refresh-rate
+}
+
+// ── Раскладка окон ─────────────────────────────────────────────────────────
+layout {
+    gaps 10
+
+    center-focused-column "never"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+    preset-window-heights {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+    }
+
+    default-column-width { proportion 0.5; }
+
+    focus-ring {
+        width 2
+    }
+
+    border {
+        off
+        width 2
+    }
+
+    shadow {
+        on
+        softness 26
+        spread 3
+        offset x=0 y=6
+        color "#00000070"
+    }
+
+    tab-indicator {
+        width 4
+        gap 5
+        length total-proportion=1.0
+        position "left"
+        gaps-between-tabs 2
+        corner-radius 8
+    }
+
+    insert-hint {
+    }
+
+    // Место под верхний бар Noctalia резервируется самим баром (reserve_space),
+    // поэтому струты держим нулевыми.
+    struts {
+    }
+}
+
+// ── Внешний вид оверлеев ───────────────────────────────────────────────────
+overview {
+    zoom 0.45
+    workspace-shadow {
+        off
+    }
+}
+
+// Убираем «горячие углы», чтобы случайный увод мыши не открывал обзор
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+// ── Размытие фона ──────────────────────────────────────────────────────────
+// Здесь только параметры; по умолчанию блюр выключен и включается точечно
+// правилами ниже (background-effect { blur true }).
+// passes/offset — сила: больше = размытее. Текущие значения намеренно слабые.
+blur {
+    off
+    passes 2
+    offset 2
+    noise 0.02
+    saturation 1.05
+}
+
+// Приложения без своих заголовков — чистый tiling-вид
+prefer-no-csd
+
+screenshot-path "~/Pictures/Снимки экрана/niri %Y-%m-%d %H-%M-%S.png"
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+// ── Переменные окружения для запускаемых из niri программ ───────────────────
+environment {
+    // Базовая тема GTK, поверх которой Noctalia кладёт цвета обоев
+    // (в светлом режиме поменяй на "adw-gtk3")
+    GTK_THEME "adw-gtk3-dark"
+
+    // Qt/KDE-приложения (Dolphin, Ark, Kate) берут цвета из kdeglobals,
+    // куда Noctalia пишет палитру шаблоном kcolorscheme.
+    QT_QPA_PLATFORMTHEME "kde"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    QT_AUTO_SCREEN_SCALE_FACTOR "1"
+
+    // Electron / Chrome — нативный Wayland
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    NIXOS_OZONE_WL "1"
+
+    // Java-приложения в тайлинге
+    _JAVA_AWT_WM_NONREPARENTING "1"
+
+    // Курсор
+    XCURSOR_THEME "breeze_cursors"
+    XCURSOR_SIZE "24"
+}
+
+// ── Автозапуск ─────────────────────────────────────────────────────────────
+// Noctalia: бар, док, лаунчер, уведомления, обои, локскрин, polkit-агент
+spawn-at-startup "noctalia"
+
+// Синхронизация переменных с systemd/D-Bus (portals, screencast)
+spawn-at-startup "/usr/bin/dbus-update-activation-environment" "--systemd" \
+    "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_SESSION_TYPE" "QT_QPA_PLATFORMTHEME"
+
+// ── Правила окон ───────────────────────────────────────────────────────────
+window-rule {
+    geometry-corner-radius 12
+    clip-to-geometry true
+    draw-border-with-background false
+}
+
+// Лёгкое размытие фона видно только сквозь активное окно.
+// Работает там, где окно полупрозрачное (kitty — background_opacity 0.90).
+window-rule {
+    match is-focused=true
+    background-effect {
+        blur true
+    }
+}
+
+// Окно настроек Noctalia — плавающее
+window-rule {
+    match app-id="dev.noctalia.Noctalia"
+    open-floating true
+    default-column-width { fixed 1080; }
+    default-window-height { fixed 920; }
+}
+
+// Picture-in-Picture поверх всего
+window-rule {
+    match title="^Picture-in-Picture$"
+    open-floating true
+    open-focused false
+}
+
+// Диалоги и всплывающие окна — плавающие
+window-rule {
+    match app-id=r#"^org\.kde\.polkit-kde-authentication-agent-1$"#
+    match app-id=r#"^xdg-desktop-portal-gtk$"#
+    match app-id=r#"^org\.kde\.kcalc$"#
+    match app-id=r#"^pavucontrol$"#
+    match app-id=r#"^nm-connection-editor$"#
+    match app-id=r#"^blueman-manager$"#
+    open-floating true
+}
+
+// Менеджеры паролей не попадают в скринкаст
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"#
+    match app-id=r#"^org\.kde\.kwalletmanager5$"#
+    block-out-from "screen-capture"
+}
+
+// Терминал открывается чуть уже половины экрана
+window-rule {
+    match app-id=r#"^kitty$"#
+    default-column-width { proportion 0.5; }
+}
+
+// ── Правила слоёв (панели Noctalia) ────────────────────────────────────────
+layer-rule {
+    match namespace="^noctalia-"
+    shadow {
+        off
+    }
+}
+
+// У Noctalia два фоновых слоя: чёткие обои (noctalia-wallpaper) и размытая
+// тонированная копия (noctalia-backdrop). Копия нужна только для режима обзора,
+// поэтому её и убираем в бэкдроп niri — на рабочем столе остаются чёткие обои.
+layer-rule {
+    match namespace="^noctalia-backdrop$"
+    place-within-backdrop true
+}
+
+// ── Крышка ноутбука ────────────────────────────────────────────────────────
+switch-events {
+    lid-close { spawn "noctalia" "msg" "session" "lock-and-suspend"; }
+}
+
+// ── Совместимость ──────────────────────────────────────────────────────────
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  Горячие клавиши.  Mod = Super (Win).  Подсказку открыть: Super+Shift+/
+// ═══════════════════════════════════════════════════════════════════════════
+binds {
+    Mod+Shift+Slash { show-hotkey-overlay; }
+
+    // ── Запуск программ ────────────────────────────────────────────────────
+    Mod+Return hotkey-overlay-title="Терминал (kitty)" { spawn "kitty"; }
+    Mod+E      hotkey-overlay-title="Файлы (Dolphin)"  { spawn "dolphin"; }
+    Mod+B      hotkey-overlay-title="Браузер (Chrome)" { spawn "google-chrome-stable"; }
+
+    // ── Noctalia: лаунчер и панели ─────────────────────────────────────────
+    Mod+Space  hotkey-overlay-title="Launchpad — поиск и запуск" { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+D      hotkey-overlay-title="Launchpad"                  { spawn-sh "noctalia msg panel-toggle launcher"; }
+    Mod+S      hotkey-overlay-title="Центр управления"           { spawn-sh "noctalia msg panel-toggle control-center"; }
+    Mod+V      hotkey-overlay-title="История буфера обмена"      { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+W      hotkey-overlay-title="Выбор обоев"                { spawn-sh "noctalia msg panel-toggle wallpaper"; }
+    Mod+Comma  hotkey-overlay-title="Настройки Noctalia"         { spawn-sh "noctalia msg settings-toggle"; }
+    Mod+Shift+D hotkey-overlay-title="Тёмная / светлая тема"     { spawn-sh "noctalia msg theme-mode-toggle"; }
+    Mod+Shift+W hotkey-overlay-title="Случайные обои"            { spawn-sh "noctalia msg wallpaper-random"; }
+    Alt+Tab    repeat=false hotkey-overlay-title="Переключение окон" { spawn-sh "noctalia msg window-switcher"; }
+
+    // ── Сессия ─────────────────────────────────────────────────────────────
+    Mod+Alt+L   allow-when-locked=true hotkey-overlay-title="Заблокировать экран" { spawn-sh "noctalia msg session lock"; }
+    Mod+Shift+X hotkey-overlay-title="Меню выключения" { spawn-sh "noctalia msg panel-toggle session"; }
+    Mod+Shift+E { quit; }
+    Ctrl+Alt+Delete { quit; }
+
+    // ── Окна ───────────────────────────────────────────────────────────────
+    Mod+Q repeat=false { close-window; }
+    Mod+O repeat=false { toggle-overview; }
+
+    Mod+Left  { focus-column-left; }
+    Mod+Down  { focus-window-down; }
+    Mod+Up    { focus-window-up; }
+    Mod+Right { focus-column-right; }
+    Mod+H     { focus-column-left; }
+    Mod+J     { focus-window-down; }
+    Mod+K     { focus-window-up; }
+    Mod+L     { focus-column-right; }
+
+    Mod+Ctrl+Left  { move-column-left; }
+    Mod+Ctrl+Down  { move-window-down; }
+    Mod+Ctrl+Up    { move-window-up; }
+    Mod+Ctrl+Right { move-column-right; }
+    Mod+Ctrl+H     { move-column-left; }
+    Mod+Ctrl+J     { move-window-down; }
+    Mod+Ctrl+K     { move-window-up; }
+    Mod+Ctrl+L     { move-column-right; }
+
+    Mod+Home { focus-column-first; }
+    Mod+End  { focus-column-last; }
+    Mod+Ctrl+Home { move-column-to-first; }
+    Mod+Ctrl+End  { move-column-to-last; }
+
+    // ── Размеры ────────────────────────────────────────────────────────────
+    Mod+R            { switch-preset-column-width; }
+    Mod+Shift+R      { switch-preset-window-height; }
+    Mod+Ctrl+R       { reset-window-height; }
+    Mod+F            { maximize-column; }
+    Mod+Shift+F      { fullscreen-window; }
+    Mod+M            { maximize-window-to-edges; }
+    Mod+Ctrl+F       { expand-column-to-available-width; }
+    Mod+C            { center-column; }
+    Mod+Minus        { set-column-width "-10%"; }
+    Mod+Equal        { set-column-width "+10%"; }
+    Mod+Shift+Minus  { set-window-height "-10%"; }
+    Mod+Shift+Equal  { set-window-height "+10%"; }
+
+    Mod+Shift+Space  { toggle-window-floating; }
+    Mod+Ctrl+Space   { switch-focus-between-floating-and-tiling; }
+    Mod+T            { toggle-column-tabbed-display; }
+
+    Mod+BracketLeft  { consume-or-expel-window-left; }
+    Mod+BracketRight { consume-or-expel-window-right; }
+    Mod+Period       { expel-window-from-column; }
+
+    // ── Рабочие столы ──────────────────────────────────────────────────────
+    Mod+Page_Down      { focus-workspace-down; }
+    Mod+Page_Up        { focus-workspace-up; }
+    Mod+U              { focus-workspace-down; }
+    Mod+I              { focus-workspace-up; }
+    Mod+Ctrl+Page_Down { move-column-to-workspace-down; }
+    Mod+Ctrl+Page_Up   { move-column-to-workspace-up; }
+    Mod+Ctrl+U         { move-column-to-workspace-down; }
+    Mod+Ctrl+I         { move-column-to-workspace-up; }
+
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+
+    Mod+Ctrl+1 { move-column-to-workspace 1; }
+    Mod+Ctrl+2 { move-column-to-workspace 2; }
+    Mod+Ctrl+3 { move-column-to-workspace 3; }
+    Mod+Ctrl+4 { move-column-to-workspace 4; }
+    Mod+Ctrl+5 { move-column-to-workspace 5; }
+    Mod+Ctrl+6 { move-column-to-workspace 6; }
+    Mod+Ctrl+7 { move-column-to-workspace 7; }
+    Mod+Ctrl+8 { move-column-to-workspace 8; }
+    Mod+Ctrl+9 { move-column-to-workspace 9; }
+
+    // Колесо мыши с Super — прокрутка рабочих столов / колонок
+    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    Mod+WheelScrollRight     { focus-column-right; }
+    Mod+WheelScrollLeft      { focus-column-left; }
+    Mod+Shift+WheelScrollDown { focus-column-right; }
+    Mod+Shift+WheelScrollUp   { focus-column-left; }
+
+    // ── Скриншоты ──────────────────────────────────────────────────────────
+    Print            { screenshot; }
+    Ctrl+Print       { screenshot-screen; }
+    Alt+Print        { screenshot-window; }
+    Mod+Shift+S      { spawn-sh "noctalia msg screenshot-region"; }
+
+    // ── Мультимедиа и железо ───────────────────────────────────────────────
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn-sh "noctalia msg volume-up"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn-sh "noctalia msg volume-down"; }
+    XF86AudioMute         allow-when-locked=true { spawn-sh "noctalia msg volume-mute"; }
+    XF86AudioMicMute      allow-when-locked=true { spawn-sh "noctalia msg mic-mute"; }
+    XF86MonBrightnessUp   allow-when-locked=true { spawn-sh "noctalia msg brightness-up"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg brightness-down"; }
+    XF86KbdBrightnessUp   allow-when-locked=true { spawn-sh "noctalia msg keyboard-backlight-up"; }
+    XF86KbdBrightnessDown allow-when-locked=true { spawn-sh "noctalia msg keyboard-backlight-down"; }
+    XF86AudioPlay allow-when-locked=true { spawn-sh "noctalia msg media toggle"; }
+    XF86AudioPause allow-when-locked=true { spawn-sh "noctalia msg media pause"; }
+    XF86AudioNext allow-when-locked=true { spawn-sh "noctalia msg media next"; }
+    XF86AudioPrev allow-when-locked=true { spawn-sh "noctalia msg media previous"; }
+
+    Mod+Shift+P { power-off-monitors; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+}

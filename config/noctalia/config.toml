@@ -1,0 +1,270 @@
+# ═══════════════════════════════════════════════════════════════════════════
+#  Noctalia Shell — конфигурация
+#  Полный список опций с дефолтами:
+#    https://github.com/noctalia-dev/noctalia-shell/blob/main/example.toml
+#  Файл читается «на лету» — правки применяются сразу, перезапуск не нужен.
+#  Всё, что меняется мышкой в Настройках (Super+,), пишется в
+#    ~/.local/state/noctalia/settings.toml  и перекрывает этот файл.
+# ═══════════════════════════════════════════════════════════════════════════
+
+[accessibility]
+ui_scale = 1.0
+
+# ── Общие настройки оболочки ───────────────────────────────────────────────
+[shell]
+font_family           = "Inter"
+corner_radius_scale   = 1.2          # скругление углов панелей
+time_format           = "{:%H:%M}"
+date_format           = "%A, %d %B"
+polkit_agent          = true         # запрос пароля sudo/polkit рисует сам Noctalia
+clipboard_enabled     = true
+clipboard_history_max_entries = 200
+settings_show_advanced = true
+# Печатать прямо в обзоре niri (Super+O) — начинает поиск в лаунчере
+niri_overview_type_to_launch_enabled = true
+
+[shell.animation]
+enabled = true
+speed   = 1.15                       # чуть живее дефолта
+
+[shell.shadow]
+direction = "down"
+alpha     = 0.5
+
+[shell.panel]
+transparency_mode        = "glass"   # solid | soft | glass — «стеклянные» панели
+borders                  = true
+shadow                   = true
+launcher_placement       = "floating"
+launcher_position        = "center"  # Launchpad появляется по центру экрана
+clipboard_placement      = "floating"
+clipboard_position       = "center"
+control_center_placement = "attached"
+wallpaper_placement      = "attached"
+session_placement        = "attached"
+
+# ── Launchpad (Super+Space) ────────────────────────────────────────────────
+[shell.launcher]
+app_grid      = true                 # сетка иконок как Launchpad в macOS
+categories    = true
+show_icons    = true
+sort_by_usage = true
+compact       = false
+provider_prefix = "/"                # /calc 2+2 , /emo сердце , /wall , /win
+pinned        = ["kitty", "google-chrome", "org.kde.dolphin"]
+
+[shell.launcher.providers.calculator]
+prefix = "calc"
+global = true
+
+[shell.window_switcher]
+mru = true                           # Alt+Tab по недавно использованным окнам
+
+# ── Обои ───────────────────────────────────────────────────────────────────
+[wallpaper]
+enabled             = true
+fill_mode           = "crop"
+directory           = "~/Pictures/Wallpapers"
+transition          = ["fade", "wipe", "disc", "zoom"]
+transition_duration = 1200
+transition_on_startup = true
+
+[wallpaper.default]
+path = "~/Pictures/Wallpapers/astronaut-nord.png"
+
+# Автосмена обоев выключена. Чтобы включить — enabled = true
+# (палитра всей системы будет пересобираться при каждой смене).
+[wallpaper.automation]
+enabled          = false
+interval_seconds = 1800
+order            = "random"
+recursive        = true
+
+# ── Тема: цвета берутся из текущих обоев ───────────────────────────────────
+[theme]
+mode             = "dark"            # dark | light | auto (auto — по восходу/закату)
+shell_mode       = "follow"
+source           = "wallpaper"       # палитра генерируется из обоев
+wallpaper_scheme = "vibrant"         # сочные, хорошо различимые цвета (лучше для терминала)
+                                     # варианты: m3-tonal-spot, m3-fruit-salad,
+                                     # m3-rainbow, m3-monochrome, vibrant,
+                                     # faithful, dysfunctional, muted
+pure_black_dark  = false
+
+# Эти шаблоны перекрашивают сторонние программы при каждой смене палитры.
+# Список всех id:  noctalia theme --list-templates
+[theme.templates]
+enable_builtin_templates   = true
+builtin_ids                = ["niri", "kitty", "gtk3", "gtk4", "qt", "kcolorscheme", "btop"]
+enable_community_templates = false
+
+# ── Свои шаблоны: Telegram и Google Chrome ─────────────────────────────────
+# Исходники и скрипты применения — в ~/.config/noctalia/templates/
+
+# Telegram Desktop: палитра .tdesktop-theme пересобирается автоматически, но
+# применить её из командной строки нельзя — у Telegram нет такого API (файл в
+# аргументах он понимает как «отправить в чат»). Хук только показывает
+# уведомление; применяется тема в один клик:
+#   Настройки → Оформление → Цвет темы → Загрузить из файла
+[theme.templates.user.telegram]
+input_path  = "~/.config/noctalia/templates/telegram.tdesktop-theme"
+output_path = "~/.config/telegram-desktop/themes/noctalia.tdesktop-theme"
+post_hook   = 'bash "$HOME/.config/noctalia/templates/telegram-apply.sh"'
+
+# Google Chrome: тема-расширение. Один раз подключить через chrome://extensions
+# (инструкция появится в ~/.local/share/noctalia/google-chrome-theme/).
+[theme.templates.user.google_chrome]
+input_path  = "~/.config/noctalia/templates/chrome-manifest.json"
+output_path = "~/.cache/noctalia/google-chrome-theme/manifest.json"
+post_hook   = 'bash "$HOME/.config/noctalia/templates/chrome-apply.sh" {{ mode }}'
+
+# ── Фон в обзоре niri (Super+O) ────────────────────────────────────────────
+[backdrop]
+enabled        = true
+blur_intensity = 0.55
+tint_intensity = 0.3
+
+# ── Уведомления ────────────────────────────────────────────────────────────
+[notification]
+enable_daemon      = true
+show_app_name      = true
+show_actions       = true
+background_opacity = 0.95
+offset_x           = 16
+offset_y           = 10
+
+# ── OSD (громкость / яркость) ──────────────────────────────────────────────
+[osd]
+position           = "bottom_center"
+background_opacity = 0.95
+offset_y           = 90
+
+# ── Экран блокировки ───────────────────────────────────────────────────────
+[lockscreen]
+enabled         = true
+blurred_desktop = true
+blur_intensity  = 0.7
+tint_intensity  = 0.35
+
+# ── Простой / автоблокировка ───────────────────────────────────────────────
+[idle]
+pre_action_fade_seconds = 2.0
+
+[idle.behavior.lock]
+enabled = true
+timeout = 600                        # 10 минут — блокировка
+
+[idle.behavior.screen-off]
+enabled = true
+timeout = 720                        # 12 минут — гасим экран
+
+# ── Мониторинг системы (для виджетов бара) ─────────────────────────────────
+[system.monitor]
+enabled = true
+
+# ── Погода и геопозиция ────────────────────────────────────────────────────
+# auto_locate определяет город по IP (исходящий запрос в интернет).
+# Не нужно — поставь enabled = false / auto_locate = false и впиши address.
+[location]
+auto_locate = true
+
+[weather]
+enabled         = true
+refresh_minutes = 30
+unit            = "celsius"
+effects         = true
+
+# ── Ночной свет ────────────────────────────────────────────────────────────
+[nightlight]
+enabled           = true
+temperature_day   = 6500
+temperature_night = 4000
+
+# ── Яркость экрана ─────────────────────────────────────────────────────────
+[brightness]
+minimum_brightness = 0.03
+
+[brightness.monitor.eDP-1]
+backend = "backlight"
+
+# ── Верхний бар ────────────────────────────────────────────────────────────
+[bar.main]
+position           = "top"
+thickness          = 34
+background_opacity = 0.85
+radius             = 0               # 0 = прямые углы, бар сливается с краем экрана
+margin_ends        = 0               # отступы по бокам
+margin_edge        = 0               # отступ от верхнего края
+padding            = 12
+widget_spacing     = 6
+shadow             = true
+reserve_space      = true
+capsule            = true            # виджеты в «пилюлях»
+
+start  = ["launcher", "workspaces", "active-window"]
+center = ["weather", "clock"]
+end    = ["media", "tray", "notifications", "clipboard",
+          "network", "bluetooth", "volume", "brightness", "battery",
+          "control-center", "session"]
+
+[bar.main.dead_zone.actions]
+left  = "panel-toggle launcher"
+right = "panel-toggle control-center"
+
+# ── Док снизу (как в macOS) ────────────────────────────────────────────────
+[dock]
+enabled             = true
+position            = "bottom"
+icon_size           = 46
+background_opacity  = 0.8
+radius              = 20
+margin_edge         = 6
+item_spacing        = 8
+main_axis_padding   = 14
+cross_axis_padding  = 8
+shadow              = true
+show_running        = true
+auto_hide           = true           # выезжает при подведении мыши к низу
+reserve_space       = false
+magnification       = true           # увеличение иконок под курсором
+magnification_scale = 1.45
+inactive_scale      = 0.9
+show_dots           = true
+launcher_position   = "start"
+launcher_icon       = "grid-dots"
+pinned = ["kitty", "google-chrome", "org.kde.dolphin", "dev.noctalia.Noctalia"]
+
+# ── Быстрые кнопки в центре управления (Super+S) ───────────────────────────
+[[control_center.shortcuts]]
+type = "wifi"
+[[control_center.shortcuts]]
+type = "bluetooth"
+[[control_center.shortcuts]]
+type = "nightlight"
+[[control_center.shortcuts]]
+type = "notification"
+[[control_center.shortcuts]]
+type = "wallpaper"
+[[control_center.shortcuts]]
+type = "session"
+
+# ── Виджеты бара: точечная настройка ───────────────────────────────────────
+[widget.clock]
+format         = "{:%H:%M}"
+tooltip_format = "{:%A, %d %B %Y}"
+font_weight    = 600
+
+[widget.notifications]
+hide_when_no_unread = false
+
+# Погода рядом с часами: только глиф и градусы, без «Ясно»
+[widget.weather]
+show_condition   = false
+show_temperature = true
+
+# Плеер исчезает из бара, когда ничего не играет
+[widget.media]
+hide_when_no_media = true
+hide_artist        = false
+title_scroll       = "on_hover"
+max_length         = 200

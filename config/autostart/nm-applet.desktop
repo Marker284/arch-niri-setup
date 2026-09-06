@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NetworkManager Applet
+Comment=Отключён в niri: у Noctalia есть свой виджет сети, иначе в трее два значка Wi-Fi
+Icon=nm-device-wireless
+Exec=nm-applet
+Terminal=false
+NoDisplay=true
+X-GNOME-UsesNotifications=true
+NotShowIn=KDE;GNOME;niri;
