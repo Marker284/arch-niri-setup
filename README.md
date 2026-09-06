@@ -124,6 +124,14 @@ install.sh
 | btop | тема |
 | Telegram | `.tdesktop-theme` — подхватывается при запуске Telegram |
 | Chrome | тема-расширение — по кнопке «Обновить» или при перезапуске |
+| Obsidian | CSS-сниппет в хранилище, ложится поверх твоей темы — на лету |
+| Vesktop / Discord | тема Vencord — при следующем запуске клиента |
+| Claude Code | `~/.claude/themes/noctalia.json`, выбрать через `/theme` — на лету |
+| PrismLauncher | тема Matugen, выбрать в настройках лаунчера |
+
+Qt- и KDE-программы отдельных шаблонов не требуют: они берут цвета из
+`kdeglobals`, который пишет `kcolorscheme`. Так что Dolphin, Ark, Kate,
+Gwenview, Konsole, qBittorrent, Calibre и VLC уже в палитре.
 
 Схема генерации задаётся в `[theme] wallpaper_scheme`. Здесь стоит `vibrant` —
 из пяти доступных только у неё ANSI-цвета в терминале получаются заметно
@@ -155,8 +163,13 @@ VS Code, Steam, Obsidian, neovim, rofi, yazi, zen-browser и другие:
 ```toml
 [theme.templates]
 enable_community_templates = true
-community_ids              = ["discord", "vscode", "spicetify"]
+community_ids              = ["obsidian", "discord", "claude-code", "prismlauncher"]
 ```
+
+Каталог сообщества уже включён — дописывай id в список. Шаблон сперва
+скачивается в кеш, поэтому в первый раз он может не примениться: в логе будет
+`community template '…' is not cached yet`. Достаточно повторить
+`noctalia msg templates-apply`.
 
 Список: `curl -s https://api.noctalia.dev/templates | python3 -m json.tool | grep name`
 

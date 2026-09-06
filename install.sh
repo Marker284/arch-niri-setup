@@ -157,6 +157,20 @@ else
     fi
 fi
 
+# ── Файловый менеджер по умолчанию / default file manager ──────────────────
+# nautilus приезжает жёсткой зависимостью xdg-desktop-portal-gnome и
+# перехватывает тип «папка»; kitty тоже регистрируется на inode/directory.
+# Ставим Dolphin явно, чтобы «показать в папке» из Telegram и прочих открывало его.
+head_ "Файловый менеджер / file manager"
+if [ -f /usr/share/applications/org.kde.dolphin.desktop ]; then
+    for mime in inode/directory x-directory/normal application/x-gnome-saved-search; do
+        run xdg-mime default org.kde.dolphin.desktop "$mime"
+    done
+    ok "Dolphin назначен обработчиком папок / set as the folder handler"
+else
+    warn "Dolphin не установлен, пропускаю / not installed, skipping"
+fi
+
 # ── nm-applet ──────────────────────────────────────────────────────────────
 # У Noctalia свой виджет сети; системный автозапуск nm-applet дал бы второй
 # значок Wi-Fi в трее. Наш файл в ~/.config/autostart перекрывает системный.

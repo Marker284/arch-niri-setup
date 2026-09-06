@@ -42,10 +42,9 @@ input {
 // ── Мониторы ───────────────────────────────────────────────────────────────
 // Посмотреть имена: niri msg outputs
 output "eDP-1" {
-    mode "1920x1080"
+    mode "1920x1080@59.999"
     scale 1
-    transform "normal"
-    variable-refresh-rate
+    position x=1838 y=-106
 }
 
 // ── Раскладка окон ─────────────────────────────────────────────────────────
@@ -261,6 +260,10 @@ binds {
     Mod+Return hotkey-overlay-title="Терминал (kitty)" { spawn "kitty"; }
     Mod+E      hotkey-overlay-title="Файлы (Dolphin)"  { spawn "dolphin"; }
     Mod+B      hotkey-overlay-title="Браузер (Chrome)" { spawn "google-chrome-stable"; }
+    // Telegram поставлен вручную из официального архива, в PATH его нет.
+    // Если появится пакетный telegram-desktop — возьмётся он.
+    Mod+Shift+T hotkey-overlay-title="Telegram" { spawn-sh "command -v telegram-desktop >/dev/null && exec telegram-desktop || exec \"$HOME/Desktop/Telegram/Telegram\""; }
+    Mod+Shift+O hotkey-overlay-title="Obsidian" { spawn "obsidian"; }
 
     // ── Noctalia: лаунчер и панели ─────────────────────────────────────────
     Mod+Space  hotkey-overlay-title="Launchpad — поиск и запуск" { spawn-sh "noctalia msg panel-toggle launcher"; }
@@ -388,4 +391,10 @@ binds {
 
     Mod+Shift+P { power-off-monitors; }
     Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+}
+
+output "HDMI-A-2" {
+    mode "1920x1080@120.000"
+    scale 1
+    position x=-101 y=-121
 }

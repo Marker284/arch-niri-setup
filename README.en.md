@@ -123,6 +123,14 @@ runs it through templates:
 | btop | theme file |
 | Telegram | `.tdesktop-theme` — picked up when Telegram starts |
 | Chrome | theme extension — via the Update button, or on browser restart |
+| Obsidian | CSS snippet in the vault, layered over your theme — live |
+| Vesktop / Discord | Vencord theme — applies on next client start |
+| Claude Code | `~/.claude/themes/noctalia.json`, pick it via `/theme` — live |
+| PrismLauncher | Matugen theme, select it in the launcher settings |
+
+Qt and KDE apps need no template of their own — they read `kdeglobals`, written
+by `kcolorscheme`. Dolphin, Ark, Kate, Gwenview, Konsole, qBittorrent, Calibre
+and VLC are already in palette.
 
 The generator is set by `[theme] wallpaper_scheme`, here `vibrant`. Of the five
 schemes available, it is the only one that keeps the terminal's ANSI colours
@@ -154,8 +162,13 @@ VS Code, Steam, Obsidian, neovim, rofi, yazi, zen-browser and more:
 ```toml
 [theme.templates]
 enable_community_templates = true
-community_ids              = ["discord", "vscode", "spicetify"]
+community_ids              = ["obsidian", "discord", "claude-code", "prismlauncher"]
 ```
+
+The community catalogue is already enabled — just append ids. A template is
+fetched into a cache first, so the very first apply may be a no-op with
+`community template '…' is not cached yet` in the log. Just run
+`noctalia msg templates-apply` once more.
 
 Browse them with:
 `curl -s https://api.noctalia.dev/templates | python3 -m json.tool | grep name`

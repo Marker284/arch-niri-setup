@@ -8,3 +8,8 @@ config/noctalia/templates/*.md5
 *~
 *.swp
 .DS_Store
+
+# Резервные копии, которые делает GUI-редактор мониторов (nwg-displays)
+# Backups left by the monitor GUI editor
+*.bak
+*.bak-*

@@ -96,7 +96,10 @@ pure_black_dark  = false
 [theme.templates]
 enable_builtin_templates   = true
 builtin_ids                = ["niri", "kitty", "gtk3", "gtk4", "qt", "kcolorscheme", "btop"]
-enable_community_templates = false
+# Шаблоны из каталога сообщества: noctalia качает и кеширует их сама.
+# Список всех: curl -s https://api.noctalia.dev/templates | python3 -m json.tool | grep name
+enable_community_templates = true
+community_ids              = ["obsidian", "discord", "claude-code", "prismlauncher"]
 
 # ── Свои шаблоны: Telegram и Google Chrome ─────────────────────────────────
 # Исходники и скрипты применения — в ~/.config/noctalia/templates/
